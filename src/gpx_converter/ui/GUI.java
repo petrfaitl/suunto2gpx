@@ -1,7 +1,8 @@
 package gpx_converter.ui;
 
-
 import gpx_converter.FileManager;
+import gpx_converter.domain.FileSource;
+import gpx_converter.domain.OSFinder;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,15 +17,18 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author Petr
  */
 public class GUI extends javax.swing.JFrame
 {
+
     private final FileManager fm;
-    private File currentDirectory;
+    private File inputFile;
+    private OSFinder os;
+    private String deviceSelectorSelection;
+    private FileNameExtensionFilter filter;
 
     /**
      * Creates new form NewJFrameTest
@@ -33,10 +37,55 @@ public class GUI extends javax.swing.JFrame
     {
         initComponents();
         this.fm = new FileManager();
-        String downloads = System.getProperty ("user.home") + "/";
-        String suuntoFiles = System.getProperty ("user.home") + "/Library/Application Support/Suunto/Moveslink2";
-        this.currentDirectory = new File(suuntoFiles);
-        
+        this.os = new OSFinder();
+        this.deviceSelectorSelection = deviceSelectorCombo.getSelectedItem().toString().toUpperCase();
+        this.inputFile = setInputFile(deviceSelectorSelection);
+        setSubhead();
+
+    }
+
+    private void setSubhead()
+    {
+        String displayText = String.format("Extracts .gpx file from %s watch workout", deviceSelectorSelection);
+        subHead.setText(displayText);
+    }
+
+    private File setInputFile(String source)
+    {
+        String inputSource = null;
+
+        switch (deviceSelectorSelection)
+        {
+            case "SUUNTO":
+                if (os.IS_MAC())
+                {
+
+                    inputSource = FileSource.SUUNTO.getMacPath();
+                } else if (os.IS_WIN())
+                {
+                    inputSource = FileSource.SUUNTO.getWinPath();
+                }
+                filter = new FileNameExtensionFilter(FileSource.SUUNTO.getLabel(), FileSource.SUUNTO.getExtension());
+                break;
+            default:
+                if (os.IS_MAC())
+                {
+
+                    inputSource = FileSource.OTHER.getMacPath();
+                } else if (os.IS_WIN())
+                {
+                    inputSource = FileSource.OTHER.getWinPath();
+                } else
+                {
+                    inputSource = FileSource.OTHER.getWinPath();
+                }
+                filter = new FileNameExtensionFilter(FileSource.OTHER.getLabel(), FileSource.OTHER.getExtension());
+                break;
+
+        }
+
+        return new File(inputSource);
+
     }
 
     /**
@@ -53,11 +102,12 @@ public class GUI extends javax.swing.JFrame
         jSeparator2 = new javax.swing.JSeparator();
         heading = new javax.swing.JLabel();
         subHead = new javax.swing.JLabel();
-        textField = new javax.swing.JTextField();
+        sourceFileNameText = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
         convertButton = new javax.swing.JButton();
         results = new javax.swing.JLabel();
         jSeparator3 = new javax.swing.JSeparator();
+        deviceSelectorCombo = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -65,16 +115,18 @@ public class GUI extends javax.swing.JFrame
         heading.setText("GPX Extractor");
         heading.setToolTipText("");
 
-        subHead.setText("Extracts .gpx file from Suunto watch workout");
+        subHead.setText("Extracts .gpx file");
+        subHead.setToolTipText("");
+        subHead.setPreferredSize(new java.awt.Dimension(107, 27));
 
-        textField.setEditable(false);
-        textField.setText("Browse for source file");
-        textField.setPreferredSize(new java.awt.Dimension(84, 35));
-        textField.addActionListener(new java.awt.event.ActionListener()
+        sourceFileNameText.setEditable(false);
+        sourceFileNameText.setText("Browse for source file");
+        sourceFileNameText.setPreferredSize(new java.awt.Dimension(84, 35));
+        sourceFileNameText.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                textFieldActionPerformed(evt);
+                sourceFileNameTextActionPerformed(evt);
             }
         });
 
@@ -101,6 +153,15 @@ public class GUI extends javax.swing.JFrame
 
         results.setText("Ready");
 
+        deviceSelectorCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Suunto" }));
+        deviceSelectorCombo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                deviceSelectorComboActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -108,13 +169,16 @@ public class GUI extends javax.swing.JFrame
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textField, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
+                    .addComponent(sourceFileNameText, javax.swing.GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(browseButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(convertButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addComponent(subHead, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(deviceSelectorCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(subHead, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE))
                         .addComponent(heading)
                         .addComponent(results)
                         .addComponent(jSeparator3)))
@@ -126,9 +190,11 @@ public class GUI extends javax.swing.JFrame
                 .addContainerGap()
                 .addComponent(heading)
                 .addGap(18, 18, 18)
-                .addComponent(subHead)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(subHead, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(deviceSelectorCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sourceFileNameText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(browseButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -140,6 +206,8 @@ public class GUI extends javax.swing.JFrame
                 .addContainerGap())
         );
 
+        deviceSelectorCombo.getAccessibleContext().setAccessibleName("");
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -147,25 +215,28 @@ public class GUI extends javax.swing.JFrame
     {//GEN-HEADEREND:event_browseButtonActionPerformed
         // TODO add your handling code here:
         JFileChooser chooser = new JFileChooser();
-        chooser.setCurrentDirectory(currentDirectory);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Suunto workout files", "sml");
-        chooser.setFileFilter(filter);
+        chooser.setCurrentDirectory(inputFile);
+        if (filter != null)
+        {
+            chooser.setFileFilter(filter);
+        }
+        
         int result = chooser.showOpenDialog(this);
-        if(result == JFileChooser.APPROVE_OPTION)
+        if (result == JFileChooser.APPROVE_OPTION)
         {
             String chosenFile = chooser.getSelectedFile().getPath();
-            textField.setText(chosenFile);
+            sourceFileNameText.setText(chosenFile);
             convertButton.setEnabled(true);
             fm.clear();
             fm.setInputFileName(chosenFile);
         }
-        
+
     }//GEN-LAST:event_browseButtonActionPerformed
 
-    private void textFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_textFieldActionPerformed
-    {//GEN-HEADEREND:event_textFieldActionPerformed
+    private void sourceFileNameTextActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_sourceFileNameTextActionPerformed
+    {//GEN-HEADEREND:event_sourceFileNameTextActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_textFieldActionPerformed
+    }//GEN-LAST:event_sourceFileNameTextActionPerformed
 
     private void convertButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_convertButtonActionPerformed
     {//GEN-HEADEREND:event_convertButtonActionPerformed
@@ -191,6 +262,14 @@ public class GUI extends javax.swing.JFrame
         }
         convertButton.setEnabled(false);
     }//GEN-LAST:event_convertButtonActionPerformed
+
+    private void deviceSelectorComboActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deviceSelectorComboActionPerformed
+    {//GEN-HEADEREND:event_deviceSelectorComboActionPerformed
+        // TODO add your handling code here:
+        setSubhead();
+
+
+    }//GEN-LAST:event_deviceSelectorComboActionPerformed
 
 //    /**
 //     * @param args the command line arguments
@@ -241,12 +320,13 @@ public class GUI extends javax.swing.JFrame
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
     private javax.swing.JButton convertButton;
+    private javax.swing.JComboBox deviceSelectorCombo;
     private javax.swing.JLabel heading;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JLabel results;
+    private javax.swing.JTextField sourceFileNameText;
     private javax.swing.JLabel subHead;
-    private javax.swing.JTextField textField;
     // End of variables declaration//GEN-END:variables
 }

@@ -32,14 +32,18 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="textField" pref="354" max="32767" attributes="0"/>
+                  <Component id="sourceFileNameText" pref="460" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="browseButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="convertButton" max="32767" attributes="0"/>
                       </Group>
-                      <Component id="subHead" pref="354" max="32767" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Component id="deviceSelectorCombo" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="subHead" pref="354" max="32767" attributes="0"/>
+                      </Group>
                       <Component id="heading" min="-2" max="-2" attributes="0"/>
                       <Component id="results" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jSeparator3" max="32767" attributes="0"/>
@@ -55,9 +59,12 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Component id="heading" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="subHead" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="subHead" min="-2" max="-2" attributes="0"/>
+                  <Component id="deviceSelectorCombo" min="-2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="textField" min="-2" max="-2" attributes="0"/>
+              <Component id="sourceFileNameText" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="browseButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -84,10 +91,14 @@
     </Component>
     <Component class="javax.swing.JLabel" name="subHead">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Extracts .gpx file from Suunto watch workout"/>
+        <Property name="text" type="java.lang.String" value="Extracts .gpx file"/>
+        <Property name="toolTipText" type="java.lang.String" value=""/>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[107, 27]"/>
+        </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="textField">
+    <Component class="javax.swing.JTextField" name="sourceFileNameText">
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
         <Property name="text" type="java.lang.String" value="Browse for source file"/>
@@ -96,7 +107,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textFieldActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sourceFileNameTextActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="browseButton">
@@ -128,6 +139,21 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JSeparator" name="jSeparator3">
+    </Component>
+    <Component class="javax.swing.JComboBox" name="deviceSelectorCombo">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="1">
+            <StringItem index="0" value="Suunto"/>
+          </StringArray>
+        </Property>
+      </Properties>
+      <AccessibilityProperties>
+        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
+      </AccessibilityProperties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deviceSelectorComboActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
